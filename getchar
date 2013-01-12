@@ -16,16 +16,20 @@ open(my $lock, ">", "${file_name}.lock") || die;
 flock($lock, LOCK_EX) || die;
 
 if ($char eq "ENTER") {
-    open($file, "<", $file_name) || die;
-    $string = <$file>;
-    unlink $file_name;
-    print "Executing $string\n";
+    if (-e $file_name) {
+	open($file, "<", $file_name) || die;
+	$string = <$file>;
+	unlink $file_name;
+	print "Executing $string\n";
+    }
 } elsif ($char eq "BACK") {
-    open($file, "<", $file_name) || die;
-    $string = <$file>;
-    chop($string);
-    open($file, ">", $file_name) || die;
-    print $file $string;
+    if (-e $file_name) {
+	open($file, "<", $file_name) || die;
+	$string = <$file>;
+	chop($string);
+	open($file, ">", $file_name) || die;
+	print $file $string;
+    }
 } else {
     open($file, ">>", $file_name) || die;
     print $file $char;
