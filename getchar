@@ -1,0 +1,34 @@
+#!/usr/bin/perl
+
+use Fcntl qw(:flock SEEK_END);
+
+$char = $ARGV[0];
+
+if ($char eq "") {
+    print "Usage: getchar <char>\n";
+    exit;
+}
+
+$char = "\t" if ($char eq "TAB");
+
+$file_name = "/tmp/getchar.txt";
+open(my $lock, ">", "${file_name}.lock") || die;
+flock($lock, LOCK_EX) || die;
+
+if ($char eq "ENTER") {
+    open($file, "<", $file_name) || die;
+    $string = <$file>;
+    unlink $file_name;
+    print "Executing $string\n";
+} elsif ($char eq "BACK") {
+    open($file, "<", $file_name) || die;
+    $string = <$file>;
+    chop($string);
+    open($file, ">", $file_name) || die;
+    print $file $string;
+} else {
+    open($file, ">>", $file_name) || die;
+    print $file $char;
+}
+
+flock($lock, LOCK_UN);
